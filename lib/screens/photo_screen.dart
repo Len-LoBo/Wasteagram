@@ -37,7 +37,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
           children: <Widget>[
             SizedBox(
               height: 300, 
-              width: 300,
+              width: 400,
               child: Image.file(this.widget.image, fit: BoxFit.cover)),
               SizedBox(height:40),
               FractionallySizedBox(

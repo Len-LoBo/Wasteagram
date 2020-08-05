@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:wasteagram/components/custom_app_bar.dart';
 import 'components/custom_app_bar.dart';
-import 'screens/post_list_page.dart';
+import 'screens/post_list_screen.dart';
 
 
 class App extends StatelessWidget {
@@ -10,7 +10,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       theme: ThemeData.dark(),
       debugShowCheckedModeBanner: false,
-      home:  PostListPage(),
+      home:  PostListScreen(),
     );
   }
 }

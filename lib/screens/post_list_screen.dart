@@ -3,23 +3,23 @@ import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:wasteagram/styles.dart';
 import 'package:flutter/material.dart';
 import '../dateFormat.dart';
-import 'package:wasteagram/screens/photo_page.dart';
+import 'package:wasteagram/screens/photo_screen.dart';
 
-import 'detail_page.dart';
+import 'detail_screen.dart';
 
-class PostListPage extends StatefulWidget {
+class PostListScreen extends StatefulWidget {
   @override
-  _PostListPageState createState() => _PostListPageState();
+  _PostListScreenState createState() => _PostListScreenState();
 }
 
-class _PostListPageState extends State<PostListPage> {
+class _PostListScreenState extends State<PostListScreen> {
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
-        child: CustomAppBar(title: 'Wastegram')
+        child: CustomAppBar(title: 'Wasteagram')
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -44,7 +44,7 @@ class _PostListPageState extends State<PostListPage> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DetailPage())
+                      MaterialPageRoute(builder: (context) => DetailScreen())
                     );
                   },
                 );
@@ -77,7 +77,7 @@ class Fab extends StatelessWidget {
       onPressed: () {
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => PhotoPage())
+          MaterialPageRoute(builder: (context) => PhotoScreen())
         );
       }
     );

@@ -19,9 +19,12 @@ class _PostListScreenState extends State<PostListScreen> {
 
   final picker = ImagePicker();
 
-  Future<File> getPhoto() async {
+  Future getPhoto() async {
     final pickedFile = await picker.getImage(source:ImageSource.camera);
+    if (pickedFile != null)
       return File(pickedFile.path);
+    else
+      return null;
   }
 
   @override
@@ -79,10 +82,12 @@ class _PostListScreenState extends State<PostListScreen> {
       child: Icon(Icons.camera_alt),
       onPressed: () async {
         File image = await getPhoto();
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PhotoScreen(image: image))
-        );
+        if (image != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PhotoScreen(image: image))
+          );
+        }
       }
     );
   }

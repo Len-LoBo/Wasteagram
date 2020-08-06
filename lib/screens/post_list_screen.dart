@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:wasteagram/styles.dart';
 import 'package:flutter/material.dart';
@@ -14,16 +17,48 @@ class PostListScreen extends StatefulWidget {
 
 class _PostListScreenState extends State<PostListScreen> {
 
+  int totalQuantity;
+
+  final picker = ImagePicker();
+
+  Future getPhoto() async {
+    final pickedFile = await picker.getImage(source:ImageSource.camera);
+    if (pickedFile != null)
+      return File(pickedFile.path);
+    else
+      return null;
+  }
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   countQuantity();
+  //   setState(() {});
+  // }
+
+  void countQuantity() async {
+    int count = 0;
+    var snapshot = await Firestore.instance.collection('posts').getDocuments();
+    snapshot.documents.forEach((element) {
+      count += element['quantity'];
+    });
+    setState(() {
+      totalQuantity = count;
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    countQuantity();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
-        child: CustomAppBar(title: 'Wasteagram')
+        child: CustomAppBar(title: 'Wasteagram - $totalQuantity')
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
-        child: Fab(),
+        child: fab(),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
 
@@ -44,7 +79,7 @@ class _PostListScreenState extends State<PostListScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DetailScreen())
+                      MaterialPageRoute(builder: (context) => DetailScreen(snapshot: post))
                     );
                   },
                 );
@@ -63,23 +98,22 @@ class _PostListScreenState extends State<PostListScreen> {
       )
     );
   }
-}
 
-class Fab extends StatelessWidget {
-  const Fab({
-    Key key,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
+  Widget fab() {
     return FloatingActionButton(
       child: Icon(Icons.camera_alt),
-      onPressed: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => PhotoScreen())
-        );
+      onPressed: () async {
+        File image = await getPhoto();
+        if (image != null) {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => PhotoScreen(image: image))
+          );
+        }
       }
     );
   }
+  
 }
+
+

@@ -40,8 +40,16 @@ class _DetailScreenState extends State<DetailScreen> {
             AspectRatio(
               aspectRatio: 1/1,
               child: Container(
+                
                 margin: const EdgeInsets.all(40),
                 decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
+                  boxShadow: [BoxShadow(
+                    color: Colors.black87,
+                    blurRadius: 10.0,
+                    spreadRadius: .5
+                  ),],
+
                   image: DecorationImage(
                     fit: BoxFit.cover,
                     alignment: FractionalOffset.topCenter,
@@ -61,9 +69,6 @@ class _DetailScreenState extends State<DetailScreen> {
                 style: Styles.textDefault  
               ),
             ),
-
-
-           
           ],
         ),
       )

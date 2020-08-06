@@ -29,13 +29,6 @@ class _PostListScreenState extends State<PostListScreen> {
       return null;
   }
 
-  // @override
-  // void initState() {
-  //   super.initState();
-  //   countQuantity();
-  //   setState(() {});
-  // }
-
   void countQuantity() async {
     int count = 0;
     var snapshot = await Firestore.instance.collection('posts').getDocuments();

@@ -17,6 +17,8 @@ class PostListScreen extends StatefulWidget {
 
 class _PostListScreenState extends State<PostListScreen> {
 
+  int totalQuantity;
+
   final picker = ImagePicker();
 
   Future getPhoto() async {
@@ -27,12 +29,32 @@ class _PostListScreenState extends State<PostListScreen> {
       return null;
   }
 
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   countQuantity();
+  //   setState(() {});
+  // }
+
+  void countQuantity() async {
+    int count = 0;
+    var snapshot = await Firestore.instance.collection('posts').getDocuments();
+    snapshot.documents.forEach((element) {
+      count += element['quantity'];
+    });
+    setState(() {
+      totalQuantity = count;
+    });
+
+  }
+
   @override
   Widget build(BuildContext context) {
+    countQuantity();
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(kToolbarHeight),
-        child: CustomAppBar(title: 'Wasteagram')
+        child: CustomAppBar(title: 'Wasteagram - $totalQuantity')
       ),
       floatingActionButton: Padding(
         padding: const EdgeInsets.all(8.0),
@@ -57,7 +79,7 @@ class _PostListScreenState extends State<PostListScreen> {
                   onTap: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => DetailScreen())
+                      MaterialPageRoute(builder: (context) => DetailScreen(snapshot: post))
                     );
                   },
                 );

@@ -1,9 +1,13 @@
 import 'dart:io';
+import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:location/location.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+
 
 
 class PhotoScreen extends StatefulWidget {
@@ -20,7 +24,38 @@ class _PhotoScreenState extends State<PhotoScreen> {
 
   int quantity;
   final picker = ImagePicker();
+
+  LocationData locationData;
+  bool _serviceEnabled;
+  PermissionStatus _permissionGranted;
+
   final _formKey = GlobalKey<FormState>();
+
+  @override
+  void initState() {
+    super.initState();
+    retrieveLocation();
+  }
+
+  void retrieveLocation() async {
+    var locationService = Location();
+    _serviceEnabled = await locationService.serviceEnabled();
+    if (!_serviceEnabled) {
+      _serviceEnabled = await locationService.requestService();
+      if (!_serviceEnabled) {
+        return;
+      }
+    }
+    _permissionGranted = await locationService.hasPermission();
+    if (_permissionGranted == PermissionStatus.denied) {
+      _permissionGranted = await locationService.requestPermission();
+      if (_permissionGranted != PermissionStatus.granted) {
+        return;
+      }
+    }
+    locationData = await locationService.getLocation();
+    setState(() {});
+  }
 
 
   @override
@@ -69,15 +104,25 @@ class _PhotoScreenState extends State<PhotoScreen> {
                         SizedBox(height:40),
                         RaisedButton(
                           child: Text('Post'),
-                          onPressed: () {
+                          onPressed: () async {
                             if (_formKey.currentState.validate()) {
                               _formKey.currentState.save();
+
+                              StorageReference storageReference = 
+                                FirebaseStorage.instance.ref().child(basename(this.widget.image.path));
+                              StorageUploadTask uploadTask = storageReference.putFile(this.widget.image);
+                              await uploadTask.onComplete;
+                              final url = await storageReference.getDownloadURL();
+
                               Firestore.instance.collection('posts').add({
                                 'quantity': quantity,
                                 'date': Timestamp.now(),
+                                'latitude': locationData?.latitude,
+                                'longitude': locationData?.longitude,
+                                'url': url
                               });
-                            }
-                            Navigator.of(context).pop();
+                              Navigator.of(context).pop();
+                            } 
                           }
                         )
                       ]

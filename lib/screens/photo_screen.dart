@@ -7,14 +7,15 @@ import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:wasteagram/models/post.dart';
 
 
 
 class PhotoScreen extends StatefulWidget {
 
-  final File image;
+  final File imageFile;
 
-  PhotoScreen({Key key, this.image}) : super(key: key);
+  PhotoScreen({Key key, this.imageFile}) : super(key: key);
 
   @override
   _PhotoScreenState createState() => _PhotoScreenState();
@@ -22,8 +23,9 @@ class PhotoScreen extends StatefulWidget {
 
 class _PhotoScreenState extends State<PhotoScreen> {
 
-  int quantity;
-  final picker = ImagePicker();
+  Post post;
+  Image image;
+
 
   LocationData locationData;
   bool _serviceEnabled;
@@ -35,6 +37,8 @@ class _PhotoScreenState extends State<PhotoScreen> {
   void initState() {
     super.initState();
     retrieveLocation();
+    image = Image.file(this.widget.imageFile);
+    post = Post();
   }
 
   void retrieveLocation() async {
@@ -57,6 +61,23 @@ class _PhotoScreenState extends State<PhotoScreen> {
     setState(() {});
   }
 
+  Future<StorageReference> uploadPhotoToStorage() async {
+    StorageReference storageReference = 
+      FirebaseStorage.instance.ref().child(basename(this.widget.imageFile.path));
+    StorageUploadTask uploadTask = storageReference.putFile(this.widget.imageFile);
+    await uploadTask.onComplete;
+    return storageReference;
+  }
+
+  void storePostInFirestore(){
+    Firestore.instance.collection('posts').add({
+      'quantity': post.quantity,
+      'date': Timestamp.fromDate(post.date),
+      'latitude': post.latitude,
+      'longitude': post.longitute,
+      'url': post.imageUrl
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +91,29 @@ class _PhotoScreenState extends State<PhotoScreen> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            SizedBox(
-              height: 300, 
-              width: 400,
-              child: Image.file(this.widget.image, fit: BoxFit.cover)),
-              SizedBox(height:40),
+            AspectRatio(
+              aspectRatio: 1/1,
+              child: Padding(
+                padding: const EdgeInsets.all(50.0),
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(20.0),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black54,
+                        blurRadius: 5,
+                        spreadRadius: 2
+                      )
+                    ],
+                    image: DecorationImage(
+                      image: image.image,
+                      fit: BoxFit.cover,
+                      )
+
+                  ),
+                ),
+              ),
+            ),
               FractionallySizedBox(
                 widthFactor: .3,
                   child: Form(
@@ -97,7 +136,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
                             }
                           },
                           onSaved: (value) {
-                            quantity = int.parse(value); 
+                            post.quantity = int.parse(value); 
 
                           } 
                         ),
@@ -108,19 +147,15 @@ class _PhotoScreenState extends State<PhotoScreen> {
                             if (_formKey.currentState.validate()) {
                               _formKey.currentState.save();
 
-                              StorageReference storageReference = 
-                                FirebaseStorage.instance.ref().child(basename(this.widget.image.path));
-                              StorageUploadTask uploadTask = storageReference.putFile(this.widget.image);
-                              await uploadTask.onComplete;
+                              StorageReference storageReference = await uploadPhotoToStorage();
                               final url = await storageReference.getDownloadURL();
 
-                              Firestore.instance.collection('posts').add({
-                                'quantity': quantity,
-                                'date': Timestamp.now(),
-                                'latitude': locationData?.latitude,
-                                'longitude': locationData?.longitude,
-                                'url': url
-                              });
+                              post.imageUrl = url;
+                              post.date = DateTime.now();
+                              post.latitude = locationData?.latitude;
+                              post.longitute = locationData.longitude;
+
+                              storePostInFirestore();
                               Navigator.of(context).pop();
                             } 
                           }

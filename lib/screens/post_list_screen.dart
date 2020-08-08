@@ -96,11 +96,11 @@ class _PostListScreenState extends State<PostListScreen> {
     return FloatingActionButton(
       child: Icon(Icons.camera_alt),
       onPressed: () async {
-        File image = await getPhoto();
-        if (image != null) {
+        File imageFile = await getPhoto();
+        if (imageFile != null) {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => PhotoScreen(image: image))
+            MaterialPageRoute(builder: (context) => PhotoScreen(imageFile: imageFile))
           );
         }
       }

@@ -7,7 +7,9 @@ class Post {
   double latitude;
   double longitute;
 
-Post.fromSnapshot({DocumentSnapshot snapshot}){
+  Post();
+
+  Post.fromSnapshot({DocumentSnapshot snapshot}){
     this.date = snapshot.data['date'].toDate();
     this.imageUrl = snapshot.data['url'];
     this.quantity = snapshot.data['quantity'];

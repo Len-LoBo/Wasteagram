@@ -89,7 +89,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
       ),
       bottomNavigationBar: GestureDetector(
         child: Container(
-          height: 80,
+          height: 70,
           color: Colors.blue,
           child: Icon(
             Icons.cloud_upload,
@@ -114,70 +114,169 @@ class _PhotoScreenState extends State<PhotoScreen> {
         
       ),
       body: SingleChildScrollView(
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            AspectRatio(
-              aspectRatio: 1/1,
-              child: Container(
-                margin: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      blurRadius: 5,
-                      spreadRadius: 2
-                    )
-                  ],
-                  image: DecorationImage(
-                    image: image.image,
-                    fit: BoxFit.cover,
-                    )
-
-                ),
-              ),
-            ),
-            FractionallySizedBox(
-              widthFactor: .3,
-                child: Form(
-                  key: _formKey,
-                  child: Column(
-                    children: [
-                      TextFormField(
-                        textAlign: TextAlign.center,
-                        style: Styles.headerLarge,
-                        decoration: InputDecoration(
-                          hintStyle: Styles.textFaint, 
-                          hintText: "Enter Quantity"
-                        ),
-                        keyboardType: TextInputType.number,
-                        inputFormatters: <TextInputFormatter>[
-                          WhitelistingTextInputFormatter.digitsOnly,
-                        ],
-                        validator: (value) { 
-                          if (value.isEmpty) {
-                            return "Enter a quantity";
-                          } else if (int.parse(value) < 1) {
-                            return "Must be greater than 0";
-                          } else {
-                            return null;
-                          }
-                        },
-                        onSaved: (value) {
-                          post.quantity = int.parse(value); 
-
-                        } 
-                      ),
-                    ]
-                  )
-                )
-              )
-            ],
+        child: LayoutBuilder(
+            builder: (context, constraints) {
+              return constraints.maxWidth < 500 ? 
+                VerticalLayout(image: image, formKey: _formKey, post: post) : 
+                  HorizontalLayout(image: image, formKey: _formKey, post: post);  
+            }
           ),
-        ),
       )
     );
+  }
+}
+
+class HorizontalLayout extends StatelessWidget {
+  
+  const HorizontalLayout({
+    Key key,
+    @required this.image,
+    @required GlobalKey<FormState> formKey,
+    @required this.post,
+  }) : _formKey = formKey, super(key: key);
+
+  final Image image;
+  final GlobalKey<FormState> _formKey;
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: AspectRatio(
+            aspectRatio: 1/1,
+            child: Container(
+              margin: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 5,
+                    spreadRadius: 2
+                  )
+                ],
+                image: DecorationImage(
+                  image: image.image,
+                  fit: BoxFit.cover,
+                  )
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 1,
+          child: FractionallySizedBox(
+            widthFactor: .5,
+            child: Form(
+              key: _formKey,
+              child: TextFormField(
+                textAlign: TextAlign.center,
+                style: Styles.headerLarge,
+                decoration: InputDecoration(
+                  hintStyle: Styles.textFaint, 
+                  hintText: "Enter Quantity"
+                ),
+                keyboardType: TextInputType.number,
+                inputFormatters: <TextInputFormatter>[
+                  WhitelistingTextInputFormatter.digitsOnly,
+                ],
+                validator: (value) { 
+                  if (value.isEmpty) {
+                    return "Enter a quantity";
+                  } else if (int.parse(value) < 1) {
+                    return "Must be greater than 0";
+                  } else {
+                    return null;
+                  }
+                },
+                onSaved: (value) {
+                  post.quantity = int.parse(value); 
+
+                } 
+              )
+            ),
+          ),
+        )
+      ],
+    );
+  }
+}
+
+class VerticalLayout extends StatelessWidget {
+  const VerticalLayout({
+    Key key,
+    @required this.image,
+    @required GlobalKey<FormState> formKey,
+    @required this.post,
+  }) : _formKey = formKey, super(key: key);
+
+  final Image image;
+  final GlobalKey<FormState> _formKey;
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          AspectRatio(
+            aspectRatio: 1/1,
+            child: Container(
+              margin: const EdgeInsets.all(40),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20.0),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black54,
+                    blurRadius: 5,
+                    spreadRadius: 2
+                  )
+                ],
+                image: DecorationImage(
+                  image: image.image,
+                  fit: BoxFit.cover,
+                  )
+
+              ),
+            ),
+          ),
+          FractionallySizedBox(
+            widthFactor: .3,
+              child: Form(
+                key: _formKey,
+                child: TextFormField(
+                  textAlign: TextAlign.center,
+                  style: Styles.headerLarge,
+                  decoration: InputDecoration(
+                    hintStyle: Styles.textFaint, 
+                    hintText: "Enter Quantity"
+                  ),
+                  keyboardType: TextInputType.number,
+                  inputFormatters: <TextInputFormatter>[
+                    WhitelistingTextInputFormatter.digitsOnly,
+                  ],
+                  validator: (value) { 
+                    if (value.isEmpty) {
+                      return "Enter a quantity";
+                    } else if (int.parse(value) < 1) {
+                      return "Must be greater than 0";
+                    } else {
+                      return null;
+                    }
+                  },
+                  onSaved: (value) {
+                    post.quantity = int.parse(value); 
+
+                  } 
+                )
+              )
+            )
+          ],
+        ),
+      );
   }
 }

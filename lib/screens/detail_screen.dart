@@ -1,8 +1,10 @@
+import 'package:wasteagram/models/post.dart';
 import 'package:wasteagram/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:wasteagram/dateFormat.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 
 class DetailScreen extends StatefulWidget {
@@ -16,6 +18,24 @@ class DetailScreen extends StatefulWidget {
 }
 
 class _DetailScreenState extends State<DetailScreen> {
+
+  Post post;
+
+  @override
+  void initState() {
+    super.initState();
+    loadPostObject();
+  }
+
+  void loadPostObject(){
+    post = Post();
+    post.date = widget.snapshot.data['date'].toDate();
+    post.imageUrl = widget.snapshot.data['url'];
+    post.quantity = widget.snapshot.data['quantity'];
+    post.latitude = widget.snapshot.data['latitude'];
+    post.longitute = widget.snapshot.data['longitude'];
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -31,41 +51,45 @@ class _DetailScreenState extends State<DetailScreen> {
             Padding(
               padding: const EdgeInsets.only(top: 20.0),
               child: Text(
-                dateTimeToString(
-                  DateTime.parse(widget.snapshot.data['date'].toDate().toString())
-                ),
+                dateTimeToString(post.date),
                 style: Styles.headerLarge
               ),
             ),
             AspectRatio(
               aspectRatio: 1/1,
-              child: Container(
-                
-                margin: const EdgeInsets.all(40),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.all(Radius.circular(20.0)),
-                  boxShadow: [BoxShadow(
-                    color: Colors.black87,
-                    blurRadius: 10.0,
-                    spreadRadius: .5
-                  ),],
-
-                  image: DecorationImage(
-                    fit: BoxFit.cover,
-                    alignment: FractionalOffset.topCenter,
-                    image: NetworkImage(widget.snapshot.data['url'])
-                  )
-                )
+              child: Padding(
+                padding: const EdgeInsets.all(40.0),
+                child: CachedNetworkImage(
+                  imageUrl: post.imageUrl,
+                  imageBuilder: (context, imageProvider) => Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20.0),
+                      boxShadow: [
+                        BoxShadow(
+                          blurRadius: 5,
+                          spreadRadius: 1)],
+                      image: DecorationImage(
+                        image: imageProvider,
+                        fit: BoxFit.cover
+                      )
+                    ),
+                  ),
+                  placeholder: (context, url) => Padding(
+                    padding: const EdgeInsets.all(20.0),
+                    child: CircularProgressIndicator(),
+                  ),
+                ),
               ),
             ),
+                
             Text(
-              'Items: ${widget.snapshot.data['quantity']}',
+              'Items: ${post.quantity}',
               style: Styles.headerLarge  
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 40.0),
               child: Text(
-                '( ${widget.snapshot.data['latitude']},  ${widget.snapshot.data['longitude']} )',
+                '( ${post.latitude},  ${post.longitute} )',
                 style: Styles.textDefault  
               ),
             ),
@@ -73,5 +97,5 @@ class _DetailScreenState extends State<DetailScreen> {
         ),
       )
     );
-  }
+  } 
 }

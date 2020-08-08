@@ -18,6 +18,7 @@ dependencies:
   intl: ^0.16.1
   image_picker: ^0.6.7+4
   location: ^3.0.2
+  cached_network_image: ^2.2.0+1
   
 
 dev_dependencies:

@@ -8,6 +8,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:wasteagram/models/post.dart';
+import 'package:wasteagram/styles.dart';
 
 
 
@@ -86,83 +87,92 @@ class _PhotoScreenState extends State<PhotoScreen> {
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: CustomAppBar(title: 'Wasteagram')
       ),
+      bottomNavigationBar: GestureDetector(
+        child: Container(
+          height: 80,
+          color: Colors.blue,
+          child: Icon(
+            Icons.cloud_upload,
+            size: 48)
+        ),
+        onTap: () async {
+          if (_formKey.currentState.validate()) {
+            _formKey.currentState.save();
+
+            StorageReference storageReference = await uploadPhotoToStorage();
+            final url = await storageReference.getDownloadURL();
+
+            post.imageUrl = url;
+            post.date = DateTime.now();
+            post.latitude = locationData?.latitude;
+            post.longitute = locationData.longitude;
+
+            storePostInFirestore();
+            Navigator.of(context).pop();
+          }
+        }
+        
+      ),
       body: SingleChildScrollView(
       child: Center(
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             AspectRatio(
               aspectRatio: 1/1,
-              child: Padding(
-                padding: const EdgeInsets.all(50.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20.0),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black54,
-                        blurRadius: 5,
-                        spreadRadius: 2
-                      )
-                    ],
-                    image: DecorationImage(
-                      image: image.image,
-                      fit: BoxFit.cover,
-                      )
+              child: Container(
+                margin: const EdgeInsets.all(40),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20.0),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black54,
+                      blurRadius: 5,
+                      spreadRadius: 2
+                    )
+                  ],
+                  image: DecorationImage(
+                    image: image.image,
+                    fit: BoxFit.cover,
+                    )
 
-                  ),
                 ),
               ),
             ),
-              FractionallySizedBox(
-                widthFactor: .3,
-                  child: Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          decoration: InputDecoration(labelText: "Enter Quantity"),
-                          keyboardType: TextInputType.number,
-                          inputFormatters: <TextInputFormatter>[
-                            WhitelistingTextInputFormatter.digitsOnly,
-                          ],
-                          validator: (value) { 
-                            if (value.isEmpty) {
-                              return "Enter a quantity";
-                            } else if (int.parse(value) < 1) {
-                              return "Must be greater than 0";
-                            } else {
-                              return null;
-                            }
-                          },
-                          onSaved: (value) {
-                            post.quantity = int.parse(value); 
-
-                          } 
+            FractionallySizedBox(
+              widthFactor: .3,
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      TextFormField(
+                        textAlign: TextAlign.center,
+                        style: Styles.headerLarge,
+                        decoration: InputDecoration(
+                          hintStyle: Styles.textFaint, 
+                          hintText: "Enter Quantity"
                         ),
-                        SizedBox(height:40),
-                        RaisedButton(
-                          child: Text('Post'),
-                          onPressed: () async {
-                            if (_formKey.currentState.validate()) {
-                              _formKey.currentState.save();
-
-                              StorageReference storageReference = await uploadPhotoToStorage();
-                              final url = await storageReference.getDownloadURL();
-
-                              post.imageUrl = url;
-                              post.date = DateTime.now();
-                              post.latitude = locationData?.latitude;
-                              post.longitute = locationData.longitude;
-
-                              storePostInFirestore();
-                              Navigator.of(context).pop();
-                            } 
+                        keyboardType: TextInputType.number,
+                        inputFormatters: <TextInputFormatter>[
+                          WhitelistingTextInputFormatter.digitsOnly,
+                        ],
+                        validator: (value) { 
+                          if (value.isEmpty) {
+                            return "Enter a quantity";
+                          } else if (int.parse(value) < 1) {
+                            return "Must be greater than 0";
+                          } else {
+                            return null;
                           }
-                        )
-                      ]
-                    )
+                        },
+                        onSaved: (value) {
+                          post.quantity = int.parse(value); 
+
+                        } 
+                      ),
+                    ]
                   )
+                )
               )
             ],
           ),

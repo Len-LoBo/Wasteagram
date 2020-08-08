@@ -8,8 +8,8 @@ class Styles {
   static const _textSizeDefault = 16.0;
   static const _textSizeSmall = 12.0;
   static final Color _textColorStrong = _hexToColor('000000');
-  static final Color _textColorDefault = _hexToColor('666666');
-  static final Color _textColorFaint = _hexToColor('FFFFFF');
+  static final Color _textColorFaint = _hexToColor('7f7f7f');
+  static final Color _textColorDefault = _hexToColor('FFFFFF');
   static final Color accentColor = _hexToColor('FF0000');
   static final String _fontNameDefault = 'Rubik';
 
@@ -20,16 +20,28 @@ class Styles {
   static final headerLarge = TextStyle(
     fontFamily: _fontNameDefault,
     fontSize: _textSizeLarge,
+    color: _textColorDefault
+  );
+
+  static final headerFaint = TextStyle(
+    fontFamily: _fontNameDefault,
+    fontSize: _textSizeLarge,
     color: _textColorFaint
   );
 
   static final largeDisplayNumber = TextStyle(
     fontFamily: _fontNameDefault,
     fontSize: _textSizeLarge,
-    color: _textColorFaint
+    color: _textColorDefault
   );
 
   static final textDefault = TextStyle(
+    fontFamily: _fontNameDefault,
+    fontSize: _textSizeDefault,
+    color: _textColorDefault
+  );
+
+  static final textFaint = TextStyle(
     fontFamily: _fontNameDefault,
     fontSize: _textSizeDefault,
     color: _textColorFaint

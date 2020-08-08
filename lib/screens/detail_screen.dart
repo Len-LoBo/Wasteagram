@@ -24,18 +24,8 @@ class _DetailScreenState extends State<DetailScreen> {
   @override
   void initState() {
     super.initState();
-    loadPostObject();
+    post = Post.fromSnapshot(snapshot: this.widget.snapshot);
   }
-
-  void loadPostObject(){
-    post = Post();
-    post.date = widget.snapshot.data['date'].toDate();
-    post.imageUrl = widget.snapshot.data['url'];
-    post.quantity = widget.snapshot.data['quantity'];
-    post.latitude = widget.snapshot.data['latitude'];
-    post.longitute = widget.snapshot.data['longitude'];
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -66,8 +56,9 @@ class _DetailScreenState extends State<DetailScreen> {
                       borderRadius: BorderRadius.circular(20.0),
                       boxShadow: [
                         BoxShadow(
+                          color: Colors.black54,
                           blurRadius: 5,
-                          spreadRadius: 1)],
+                          spreadRadius: 2)],
                       image: DecorationImage(
                         image: imageProvider,
                         fit: BoxFit.cover
@@ -75,7 +66,7 @@ class _DetailScreenState extends State<DetailScreen> {
                     ),
                   ),
                   placeholder: (context, url) => Padding(
-                    padding: const EdgeInsets.all(20.0),
+                    padding: const EdgeInsets.all(100.0),
                     child: CircularProgressIndicator(),
                   ),
                 ),

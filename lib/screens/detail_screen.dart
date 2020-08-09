@@ -10,7 +10,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 
 class DetailScreen extends StatefulWidget {
 
-  DocumentSnapshot snapshot;
+  final DocumentSnapshot snapshot;
 
   DetailScreen({Key key, this.snapshot}): super(key:key);
 
@@ -61,48 +61,17 @@ class HorizontalLayout extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-         AspectRatio(
-          aspectRatio: 1/1,
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: CachedNetworkImage(
-              imageUrl: post.imageUrl,
-              imageBuilder: (context, imageProvider) => Container(
-                decoration: photoBoxDecoration(imageProvider)
-              ),
-              placeholder: (context, url) => Padding(
-                padding: const EdgeInsets.all(100.0),
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
-        ),
+        DetailPageFrame(post: post, padding: 20.0),
         Column(
           mainAxisAlignment: MainAxisAlignment.spaceAround,
           children: [
-            Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(
-                dateTimeToString(post.date),
-                style: Styles.headerLarge
-              ),
-            ),
-            Text(
-              'Items: ${post.quantity}',
-              style: Styles.headerLarge  
-            ),
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 40.0),
-              child: Text(
-                '( ${post.latitude},  ${post.longitute} )',
-                style: Styles.textDefault  
-              ),
-            ),
+            DateHeading(post: post),
+            ItemQuantity(post: post),
+            LocationDisplay(post: post),
           ],
         ),
       ],
     );
-    
   }
 }
 
@@ -117,54 +86,102 @@ class VerticalLayout extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(top: 20.0),
-          child: Text(
-            dateTimeToString(post.date),
-            style: Styles.headerLarge
-          ),
-        ),
-        AspectRatio(
-          aspectRatio: 1/1,
-          child: Padding(
-            padding: const EdgeInsets.all(40.0),
-            child: CachedNetworkImage(
-              imageUrl: post.imageUrl,
-              imageBuilder: (context, imageProvider) => Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      blurRadius: 5,
-                      spreadRadius: 2)],
-                  image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover
-                  )
-                ),
-              ),
-              placeholder: (context, url) => Padding(
-                padding: const EdgeInsets.all(100.0),
-                child: CircularProgressIndicator(),
-              ),
-            ),
-          ),
-        ),
-            
-        Text(
-          'Items: ${post.quantity}',
-          style: Styles.headerLarge  
-        ),
-        Padding(
-          padding: const EdgeInsets.symmetric(vertical: 40.0),
-          child: Text(
-            '( ${post.latitude},  ${post.longitute} )',
-            style: Styles.textDefault  
-          ),
-        ),
+        DateHeading(post: post),
+        DetailPageFrame(post: post),
+        ItemQuantity(post:post),
+        LocationDisplay(post: post)
       ],
+    );
+  }
+}
+
+class DetailPageFrame extends StatelessWidget {
+  const DetailPageFrame({
+    Key key,
+    @required this.post,
+    this.padding = 40.0,
+  }) : super(key: key);
+
+  final Post post;
+  final double padding;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1/1,
+      child: Padding(
+        padding: EdgeInsets.all(padding),
+        child: CachedNetworkImage(
+          imageUrl: post.imageUrl,
+          imageBuilder: (context, imageProvider) => Container(
+            decoration: photoBoxDecoration(imageProvider)
+          ),
+          placeholder: (context, url) => Padding(
+            padding: const EdgeInsets.all(100.0),
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class DateHeading extends StatelessWidget {
+  const DateHeading({
+    Key key,
+    @required this.post,
+  }) : super(key: key);
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(top: 20.0),
+      child: Text(
+        dateTimeToString(post.date),
+        style: Styles.headerLarge
+      ),
+    );
+  }
+}
+
+
+class LocationDisplay extends StatelessWidget {
+  const LocationDisplay({
+    Key key,
+    @required this.post,
+  }) : super(key: key);
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 40.0),
+      child: Text(
+        '( ${post.latitude},  ${post.longitute} )',
+        style: Styles.textDefault  
+      ),
+    );
+  }
+}
+
+class ItemQuantity extends StatelessWidget {
+  const ItemQuantity({
+    Key key,
+    @required this.post,
+  }) : super(key: key);
+
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      'Items: ${post.quantity}',
+      style: Styles.headerLarge  
     );
   }
 }

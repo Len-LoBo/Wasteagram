@@ -1,3 +1,4 @@
+import 'package:wasteagram/components/photo_box_decoration.dart';
 import 'package:wasteagram/models/post.dart';
 import 'package:wasteagram/styles.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -67,18 +68,7 @@ class HorizontalLayout extends StatelessWidget {
             child: CachedNetworkImage(
               imageUrl: post.imageUrl,
               imageBuilder: (context, imageProvider) => Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black54,
-                      blurRadius: 5,
-                      spreadRadius: 2)],
-                  image: DecorationImage(
-                    image: imageProvider,
-                    fit: BoxFit.cover
-                  )
-                ),
+                decoration: photoBoxDecoration(imageProvider)
               ),
               placeholder: (context, url) => Padding(
                 padding: const EdgeInsets.all(100.0),

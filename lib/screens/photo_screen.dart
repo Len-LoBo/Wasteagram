@@ -7,6 +7,7 @@ import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:wasteagram/components/photo_box_decoration.dart';
 import 'package:wasteagram/models/post.dart';
 import 'package:wasteagram/styles.dart';
 
@@ -26,7 +27,6 @@ class _PhotoScreenState extends State<PhotoScreen> {
 
   Post post;
   Image image;
-
 
   LocationData locationData;
   bool _serviceEnabled;
@@ -87,32 +87,7 @@ class _PhotoScreenState extends State<PhotoScreen> {
         preferredSize: Size.fromHeight(kToolbarHeight),
         child: CustomAppBar(title: 'Wasteagram')
       ),
-      bottomNavigationBar: GestureDetector(
-        child: Container(
-          height: 70,
-          color: Colors.blue,
-          child: Icon(
-            Icons.cloud_upload,
-            size: 48)
-        ),
-        onTap: () async {
-          if (_formKey.currentState.validate()) {
-            _formKey.currentState.save();
-
-            StorageReference storageReference = await uploadPhotoToStorage();
-            final url = await storageReference.getDownloadURL();
-
-            post.imageUrl = url;
-            post.date = DateTime.now();
-            post.latitude = locationData?.latitude;
-            post.longitute = locationData.longitude;
-
-            storePostInFirestore();
-            Navigator.of(context).pop();
-          }
-        }
-        
-      ),
+      bottomNavigationBar: uploadButton(context),
       body: SingleChildScrollView(
         child: LayoutBuilder(
             builder: (context, constraints) {
@@ -124,83 +99,33 @@ class _PhotoScreenState extends State<PhotoScreen> {
       )
     );
   }
-}
 
-class HorizontalLayout extends StatelessWidget {
-  
-  const HorizontalLayout({
-    Key key,
-    @required this.image,
-    @required GlobalKey<FormState> formKey,
-    @required this.post,
-  }) : _formKey = formKey, super(key: key);
+  Widget uploadButton(BuildContext context) {
+    return GestureDetector(
+      child: Container(
+        height: 70,
+        color: Colors.blue,
+        child: Icon(
+          Icons.cloud_upload,
+          size: 48)
+      ),
+      onTap: () async {
+        if (_formKey.currentState.validate()) {
+          _formKey.currentState.save();
 
-  final Image image;
-  final GlobalKey<FormState> _formKey;
-  final Post post;
+          StorageReference storageReference = await uploadPhotoToStorage();
+          final url = await storageReference.getDownloadURL();
 
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          flex: 1,
-          child: AspectRatio(
-            aspectRatio: 1/1,
-            child: Container(
-              margin: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black54,
-                    blurRadius: 5,
-                    spreadRadius: 2
-                  )
-                ],
-                image: DecorationImage(
-                  image: image.image,
-                  fit: BoxFit.cover,
-                  )
-              ),
-            ),
-          ),
-        ),
-        Expanded(
-          flex: 1,
-          child: FractionallySizedBox(
-            widthFactor: .5,
-            child: Form(
-              key: _formKey,
-              child: TextFormField(
-                textAlign: TextAlign.center,
-                style: Styles.headerLarge,
-                decoration: InputDecoration(
-                  hintStyle: Styles.textFaint, 
-                  hintText: "Enter Quantity"
-                ),
-                keyboardType: TextInputType.number,
-                inputFormatters: <TextInputFormatter>[
-                  WhitelistingTextInputFormatter.digitsOnly,
-                ],
-                validator: (value) { 
-                  if (value.isEmpty) {
-                    return "Enter a quantity";
-                  } else if (int.parse(value) < 1) {
-                    return "Must be greater than 0";
-                  } else {
-                    return null;
-                  }
-                },
-                onSaved: (value) {
-                  post.quantity = int.parse(value); 
+          post.imageUrl = url;
+          post.date = DateTime.now();
+          post.latitude = locationData?.latitude;
+          post.longitute = locationData.longitude;
 
-                } 
-              )
-            ),
-          ),
-        )
-      ],
+          storePostInFirestore();
+
+          Navigator.of(context).pop();
+        }
+      } 
     );
   }
 }
@@ -223,60 +148,106 @@ class VerticalLayout extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
-          AspectRatio(
-            aspectRatio: 1/1,
-            child: Container(
-              margin: const EdgeInsets.all(40),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(20.0),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black54,
-                    blurRadius: 5,
-                    spreadRadius: 2
-                  )
-                ],
-                image: DecorationImage(
-                  image: image.image,
-                  fit: BoxFit.cover,
-                  )
-
-              ),
-            ),
-          ),
-          FractionallySizedBox(
-            widthFactor: .3,
-              child: Form(
-                key: _formKey,
-                child: TextFormField(
-                  textAlign: TextAlign.center,
-                  style: Styles.headerLarge,
-                  decoration: InputDecoration(
-                    hintStyle: Styles.textFaint, 
-                    hintText: "Enter Quantity"
-                  ),
-                  keyboardType: TextInputType.number,
-                  inputFormatters: <TextInputFormatter>[
-                    WhitelistingTextInputFormatter.digitsOnly,
-                  ],
-                  validator: (value) { 
-                    if (value.isEmpty) {
-                      return "Enter a quantity";
-                    } else if (int.parse(value) < 1) {
-                      return "Must be greater than 0";
-                    } else {
-                      return null;
-                    }
-                  },
-                  onSaved: (value) {
-                    post.quantity = int.parse(value); 
-
-                  } 
-                )
-              )
-            )
+          ImageFrame(image: image),
+          QuantityForm(formKey: _formKey, post: post)
           ],
         ),
       );
+  }
+}
+
+class HorizontalLayout extends StatelessWidget {
+  
+  const HorizontalLayout({
+    Key key,
+    @required this.image,
+    @required GlobalKey<FormState> formKey,
+    @required this.post,
+  }) : _formKey = formKey, super(key: key);
+
+  final Image image;
+  final GlobalKey<FormState> _formKey;
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          flex: 1,
+          child: ImageFrame(image: image)
+        ),
+        Expanded(
+          flex: 1,
+          child: QuantityForm(formKey: _formKey, post: post),
+        )
+      ],
+    );
+  }
+}
+
+class QuantityForm extends StatelessWidget {
+  const QuantityForm({
+    Key key,
+    @required GlobalKey<FormState> formKey,
+    @required this.post,
+  }) : _formKey = formKey, super(key: key);
+
+  final GlobalKey<FormState> _formKey;
+  final Post post;
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: .5,
+      child: Form(
+        key: _formKey,
+        child: TextFormField(
+          textAlign: TextAlign.center,
+          style: Styles.headerLarge,
+          decoration: InputDecoration(
+            hintStyle: Styles.textFaint, 
+            hintText: "Enter Quantity"
+          ),
+          keyboardType: TextInputType.number,
+          inputFormatters: <TextInputFormatter>[
+            WhitelistingTextInputFormatter.digitsOnly,
+          ],
+          validator: (value) { 
+            if (value.isEmpty) {
+              return "Enter a quantity";
+            } else if (int.parse(value) < 1) {
+              return "Must be greater than 0";
+            } else {
+              return null;
+            }
+          },
+          onSaved: (value) {
+            post.quantity = int.parse(value); 
+
+          } 
+        )
+      ),
+    );
+  }
+}
+
+class ImageFrame extends StatelessWidget {
+  const ImageFrame({
+    Key key,
+    @required this.image,
+  }) : super(key: key);
+
+  final Image image;
+
+  @override
+  Widget build(BuildContext context) {
+    return AspectRatio(
+      aspectRatio: 1/1,
+      child: Container(
+        margin: const EdgeInsets.all(40),
+        decoration: photoBoxDecoration(image.image)
+      ),
+    );
   }
 }

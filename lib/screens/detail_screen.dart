@@ -1,3 +1,4 @@
+import 'package:wasteagram/accessibility/semantics.dart';
 import 'package:wasteagram/components/photo_box_decoration.dart';
 import 'package:wasteagram/models/post.dart';
 import 'package:wasteagram/styles.dart';
@@ -109,18 +110,20 @@ class DetailPageFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1/1,
-      child: Padding(
-        padding: EdgeInsets.all(padding),
-        child: CachedNetworkImage(
-          imageUrl: post.imageUrl,
-          imageBuilder: (context, imageProvider) => Container(
-            decoration: photoBoxDecoration(imageProvider)
-          ),
-          placeholder: (context, url) => Padding(
-            padding: const EdgeInsets.all(100.0),
-            child: CircularProgressIndicator(),
+    return semanticWasteImage(
+      child: AspectRatio(
+        aspectRatio: 1/1,
+        child: Padding(
+          padding: EdgeInsets.all(padding),
+          child: CachedNetworkImage(
+            imageUrl: post.imageUrl,
+            imageBuilder: (context, imageProvider) => Container(
+              decoration: photoBoxDecoration(imageProvider)
+            ),
+            placeholder: (context, url) => Padding(
+              padding: const EdgeInsets.all(100.0),
+              child: CircularProgressIndicator(),
+            ),
           ),
         ),
       ),
@@ -140,9 +143,11 @@ class DateHeading extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(top: 20.0),
-      child: Text(
-        dateTimeToString(post.date),
-        style: Styles.headerLarge
+      child: semanticHeader(
+        child: Text(
+          dateTimeToString(post.date),
+          style: Styles.headerLarge
+        ),
       ),
     );
   }
@@ -161,9 +166,11 @@ class LocationDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 40.0),
-      child: Text(
-        '( ${post.latitude},  ${post.longitute} )',
-        style: Styles.textDefault  
+      child: semanticLocation(
+        child: Text(
+          '( ${post.latitude},  ${post.longitude} )',
+          style: Styles.textDefault  
+        ),
       ),
     );
   }

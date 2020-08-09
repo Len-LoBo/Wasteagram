@@ -5,16 +5,24 @@ class Post {
   String imageUrl;
   int quantity;
   double latitude;
-  double longitute;
+  double longitude;
 
   Post();
 
+  Post.fromMap(Map<String,dynamic> map) {
+    this.date = map['date'];
+    this.imageUrl = map['imageUrl'];
+    this.quantity = map['quantity'];
+    this.latitude = map['latitude'];
+    this.longitude = map['longitude'];
+  }
+
   Post.fromSnapshot({DocumentSnapshot snapshot}){
     this.date = snapshot.data['date'].toDate();
-    this.imageUrl = snapshot.data['url'];
+    this.imageUrl = snapshot.data['imageUrl'];
     this.quantity = snapshot.data['quantity'];
     this.latitude = snapshot.data['latitude'];
-    this.longitute = snapshot.data['longitude'];
+    this.longitude = snapshot.data['longitude'];
   }
 }
 

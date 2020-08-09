@@ -3,6 +3,7 @@ import 'package:path/path.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:wasteagram/accessibility/semantics.dart';
 import 'package:wasteagram/components/custom_app_bar.dart';
 import 'package:location/location.dart';
 import 'package:firebase_storage/firebase_storage.dart';
@@ -74,8 +75,8 @@ class _PhotoScreenState extends State<PhotoScreen> {
       'quantity': post.quantity,
       'date': Timestamp.fromDate(post.date),
       'latitude': post.latitude,
-      'longitude': post.longitute,
-      'url': post.imageUrl
+      'longitude': post.longitude,
+      'imageUrl': post.imageUrl
     });
   }
 
@@ -100,31 +101,33 @@ class _PhotoScreenState extends State<PhotoScreen> {
   }
 
   Widget uploadButton(BuildContext context) {
-    return GestureDetector(
-      child: Container(
-        height: 70,
-        color: Colors.blue,
-        child: Icon(
-          Icons.cloud_upload,
-          size: 48)
+    return semanticUploadButton(
+      child: GestureDetector(
+        child: Container(
+          height: 70,
+          color: Colors.blue,
+          child: Icon(
+            Icons.cloud_upload,
+            size: 48)
+        ),
+        onTap: () async {
+          if (_formKey.currentState.validate()) {
+            _formKey.currentState.save();
+
+            StorageReference storageReference = await uploadPhotoToStorage();
+            final url = await storageReference.getDownloadURL();
+
+            post.imageUrl = url;
+            post.date = DateTime.now();
+            post.latitude = locationData?.latitude;
+            post.longitude = locationData.longitude;
+
+            storePostInFirestore();
+
+            Navigator.of(context).pop();
+          }
+        } 
       ),
-      onTap: () async {
-        if (_formKey.currentState.validate()) {
-          _formKey.currentState.save();
-
-          StorageReference storageReference = await uploadPhotoToStorage();
-          final url = await storageReference.getDownloadURL();
-
-          post.imageUrl = url;
-          post.date = DateTime.now();
-          post.latitude = locationData?.latitude;
-          post.longitute = locationData.longitude;
-
-          storePostInFirestore();
-
-          Navigator.of(context).pop();
-        }
-      } 
     );
   }
 }
@@ -201,30 +204,32 @@ class QuantityForm extends StatelessWidget {
       widthFactor: .5,
       child: Form(
         key: _formKey,
-        child: TextFormField(
-          textAlign: TextAlign.center,
-          style: Styles.headerLarge,
-          decoration: InputDecoration(
-            hintStyle: Styles.textFaint, 
-            hintText: "Enter Quantity"
-          ),
-          keyboardType: TextInputType.number,
-          inputFormatters: <TextInputFormatter>[
-            WhitelistingTextInputFormatter.digitsOnly,
-          ],
-          validator: (value) { 
-            if (value.isEmpty) {
-              return "Enter a quantity";
-            } else if (int.parse(value) < 1) {
-              return "Must be greater than 0";
-            } else {
-              return null;
-            }
-          },
-          onSaved: (value) {
-            post.quantity = int.parse(value); 
+        child: semanticQuantityForm(
+          child: TextFormField(
+            textAlign: TextAlign.center,
+            style: Styles.headerLarge,
+            decoration: InputDecoration(
+              hintStyle: Styles.textFaint, 
+              hintText: "Enter Quantity"
+            ),
+            keyboardType: TextInputType.number,
+            inputFormatters: <TextInputFormatter>[
+              WhitelistingTextInputFormatter.digitsOnly,
+            ],
+            validator: (value) { 
+              if (value.isEmpty) {
+                return "Enter a quantity";
+              } else if (int.parse(value) < 1) {
+                return "Must be greater than 0";
+              } else {
+                return null;
+              }
+            },
+            onSaved: (value) {
+              post.quantity = int.parse(value); 
 
-          } 
+            } 
+          ),
         )
       ),
     );
@@ -241,11 +246,13 @@ class ImageFrame extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AspectRatio(
-      aspectRatio: 1/1,
-      child: Container(
-        margin: const EdgeInsets.all(40),
-        decoration: photoBoxDecoration(image.image)
+    return semanticWasteImage(
+      child: AspectRatio(
+        aspectRatio: 1/1,
+        child: Container(
+          margin: const EdgeInsets.all(40),
+          decoration: photoBoxDecoration(image.image)
+        ),
       ),
     );
   }

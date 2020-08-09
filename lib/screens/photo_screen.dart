@@ -4,7 +4,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:wasteagram/components/custom_app_bar.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:location/location.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:wasteagram/components/photo_box_decoration.dart';

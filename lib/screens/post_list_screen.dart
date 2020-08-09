@@ -75,6 +75,11 @@ class _PostListScreenState extends State<PostListScreen> {
                       MaterialPageRoute(builder: (context) => DetailScreen(snapshot: post))
                     );
                   },
+                  onLongPress: () async {
+                    await Firestore.instance.runTransaction((Transaction transaction) async {
+                    await transaction.delete(snapshot.data.documents[index].reference);
+                    });
+                  }
                 );
               },
               separatorBuilder: (context, index) {
